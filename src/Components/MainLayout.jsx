@@ -53,15 +53,29 @@ const MainLayout = () => {
       const toggleDropdown = () => {
         setIsOpen(!isOpen);
       };
+
+      const handleSider = ()=>{
+        const isMediumScreen = window.matchMedia('(min-width: 768px)');
+        if (!isMediumScreen.matches && !collapsed) {
+          setHideSider(!hideSider);
+        }else{
+          setHideSider(false);
+          setCollapsed(!collapsed)
+        }
+      }
     
       const handleOptionSelect = (option) => {
         setSelectedOption(option);
         setIsOpen(false);
       };
 
+      const [hideSider, setHideSider] = useState(false);
+
+
   return (
-    <Layout /*onContextMenu={(e) => e.preventDefault()} */>
-      <Sider trigger={null} collapsible collapsed={collapsed}>
+    <Layout /*onContextMenu={(e) => e.preventDefault()} */ className='min-h-screen'>
+      <div hidden={hideSider} className='h-full'>
+      <Sider trigger={null} className='min-h-[100vh]'  collapsible collapsed={collapsed}>
         <div className="logo bg-yellow-500 flex justify-center items-center cursor-text m-0 h-12" >
             <h2 className={` text-gray-500 py-3 font-bold ${collapsed ? "text-lg":"text-2xl"}`}>Shop Me {!collapsed && <span className='w-1/6 text-sm p-1 bg-white'>Admin</span>}</h2>
         </div>
@@ -197,6 +211,7 @@ const MainLayout = () => {
           ]}
         />
       </Sider>
+      </div>
       <Layout>
         <Header
           style={{
@@ -208,7 +223,7 @@ const MainLayout = () => {
             <Button
               type="text"
               icon={collapsed ? <MenuUnfoldOutlined style={{fontSize:"25px"}} /> : <MenuFoldOutlined style={{fontSize:"25px"}} />}
-              onClick={() => setCollapsed(!collapsed)}
+              onClick={handleSider}
               style={{
                 fontSize: '16px',
                 width: 48,

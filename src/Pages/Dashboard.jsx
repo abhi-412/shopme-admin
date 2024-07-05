@@ -137,13 +137,13 @@ ChartJS.register(
 
 
 const data = {
-  labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July','August','September','October','November','December'],
+  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul','Aug','Sep','Oct','Nov','Dec'],
   datasets: [
     {
       label: 'Sales',
-        data: [12, 19, 3, 5, 2, 3,12,22,11,6,17,13],
+        data: [12, 19, 3, 5, 2, 3,12,17,11,6,17,13],
         borderWidth: 1,
-      backgroundColor: 'rgb(255, 220, 88)',
+        backgroundColor: 'rgb(255, 220, 88)',
     },
   ],
 };
@@ -158,11 +158,14 @@ const Dashboard = () => {
       })}
       </div>
 
-      <div className="mt-4">
+     
+
+      <div className="mt-4 min-h-[60vh] min-w-full overflow-scroll">
         <h3 className="text-center font-bold text-xl">Income Statistics</h3>
        
         <Bar
           options={options} data={data}
+          className="min-h-[60vh] min-w-full overflow-scroll md:max-h-[50vh]"
         />
         
       </div>
