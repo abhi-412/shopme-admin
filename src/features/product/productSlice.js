@@ -13,7 +13,7 @@ export const getProducts = createAsyncThunk('product/get-products',async(thunkAP
 })
 
 export const createProducts = createAsyncThunk('product/create-products',async(productData,thunkAPI)=>{
-
+    console.log(productData)
     try{
         return await productService.createProduct(productData);
 

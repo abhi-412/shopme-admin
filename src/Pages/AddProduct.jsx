@@ -16,7 +16,6 @@ import { getColors } from '../features/color/colorSlice';
 import { Multiselect } from 'react-widgets';
 import "react-widgets/styles.css";
 import { IoFolderOpenOutline } from "react-icons/io5";
-import { deleteImg, uploadImg } from '../features/upload/uploadSlice';
 import { createProducts } from '../features/product/productSlice';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -25,141 +24,166 @@ import 'react-toastify/dist/ReactToastify.css';
 
 
 const AddProduct = () => {
-
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const [step,setStep] = useState(1);
-    const [colour,setColour] = useState([])
-    const [check,setCheck] = useState(false);
-    const [images,setImages] = useState([]);
-    const [tag,setTag] = useState([]);
-    const [formData,setFormData] = useState({})
+    const [step, setStep] = useState(1);
+    const [colour, setColour] = useState([]);
+    const [check, setCheck] = useState(false);
+    const [tag, setTag] = useState([]);
+    const [formData, setFormData] = useState({});
+    const [images, setImages] = useState([]);
+    const [uploading, setUploading] = useState(false);
+    const [uploadSuccess, setUploadSuccess] = useState(false);
+    const [uploadError, setUploadError] = useState(null);
+    const [uploadedImages, setUploadedImages] = useState([]);
 
-    useEffect(()=>{
-        async function func(){
+    useEffect(() => {
+        async function func() {
             await dispatch(getBrands());
-            
             await dispatch(getprodCategories());
-            
             await dispatch(getColors());
-
-            formik.values.color=colour;
-        
         }
         func();
-    },[colour])
+    }, []);
 
-        const imageState = useSelector((state)=>state.upload.images);
-        const brandState = useSelector((state)=>state.brand.brands)
-        const catState = useSelector((state)=>state.prodCategory.prodCategories)
-        const colorState = useSelector((state)=>state.color.colors);
-        const colors = [];
-        const tagData = ["Featured","Special","Popular","None"]
+    const brandState = useSelector((state) => state.brand.brands);
+    const catState = useSelector((state) => state.prodCategory.prodCategories);
+    const colorState = useSelector((state) => state.color.colors);
+    const colors = colorState?.map((c) => ({ _id: c._id, color: c.color })) || [];
+    const tagData = ["Featured", "Special", "Popular", "None"];
 
-        colorState?.length>0 && colorState.forEach(i=>{
-            colors.push({
-                _id:i._id,
-                color:i.color
+
+    const handleColor = (e)=>{
+         setColour(e);
+         formik.values.color = e;
+    }
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        const files = Array.from(e.dataTransfer.files);
+        setImages((prevImages) => [...prevImages, ...files]);
+    };
+
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files);
+        setImages((prevImages) => [...prevImages, ...files]);
+    };
+
+    const handleUpload = () => {
+        if (images.length === 0) return;
+        setUploading(true);
+        setUploadSuccess(false);
+        setUploadError(null);
+
+        const uploadPromises = images.map((image) => {
+            const formData = new FormData();
+            formData.append('file', image);
+            formData.append('upload_preset', 'mtwfulmt');
+
+            return fetch('https://api.cloudinary.com/v1_1/dpfzp5539/image/upload', {
+                method: 'POST',
+                body: formData,
+            }).then((response) => response.json());
+        });
+
+        Promise.all(uploadPromises)
+            .then((results) => {
+                const successfulUploads = results.filter((result) => result.secure_url);
+                setUploadedImages((prevUploadedImages) => [
+                    ...prevUploadedImages,
+                    ...successfulUploads.map((result) => ({
+                        url: result.secure_url,
+                        public_id: result.public_id,
+                        asset_id: result.asset_id,
+                    })),
+                ]);
+                setUploadSuccess(true);
+                setImages([]);
             })
-        })
-
-        // useEffect(()=>{
-        //     setImages(imageState);
-        // },[imageState])
-
-        const handleDeleteImg = (name) => {
-            setImages(prevImages => {
-              const imgs=  prevImages.filter(img => img.name !== name);
-              return imgs
+            .catch((error) => {
+                console.error('Upload error:', error);
+                setUploadError('Error uploading images. Please try again.');
+            })
+            .finally(() => {
+                setUploading(false);
             });
-          };
+    };
 
-        
+    const handleDeleteImg = (publicId) => {
+        setUploadedImages((prevUploadedImages) =>
+            prevUploadedImages.filter((img) => img.public_id !== publicId)
+        );
+    };
 
-        let schema =  Yup.object({
-            title: Yup.string().required('Title is Required'),
-            category: Yup.string().required('Please select a Category'),
-            brand: Yup.string().required('Please select a Brand'),
-            price: Yup.number().required("Required").min(1, 'Price cannot be 0'),
-            quantity: Yup.number().required("Required").min(1,'At least one is required'),
-            description:Yup.string().required('Description is Required'),
-            color:Yup.array()
-            .min(1, 'pick at least one items')
-            .of(
-              Yup.object().shape({
+    const schema = Yup.object({
+        title: Yup.string().required('Title is Required'),
+        category: Yup.string().required('Please select a Category'),
+        brand: Yup.string().required('Please select a Brand'),
+        price: Yup.number().required("Required").min(1, 'Price cannot be 0'),
+        quantity: Yup.number().required("Required").min(1, 'At least one is required'),
+        description: Yup.string().required('Description is Required'),
+        color: Yup.array().min(1, 'Pick at least one item').of(
+            Yup.object().shape({
                 color: Yup.string().required(),
                 _id: Yup.string().required(),
-              })
-            ),
-            tags:Yup.array()
-          })
-        
-          const formik = useFormik({
-            initialValues: {
-              title: "",
-              category:'',
-              quantity:'',
-              brand:'',
-              price:'',
-              description:'',
-              color:[],
-              tags:[]
-            },
-            validationSchema:schema,
-            onSubmit: values => {
-                formik.values.tags = tag;
-                setFormData(values)
-                setStep(2);
-            },
-          });
+            })
+        ),
+        tags: Yup.array()
+    });
 
+    const formik = useFormik({
+        initialValues: {
+            title: "",
+            category: '',
+            quantity: '',
+            brand: '',
+            price: '',
+            description: '',
+            tags: [],
+            color:[],
+        },
+        validationSchema: schema,
+        onSubmit: values => {
+            values.tags = tag;
+            setFormData(values);
+            setStep(2);
+        },
+    });
 
-          const  handleUpload = async()=>{
-            const response = await dispatch(uploadImg(images));
-            // console.log(response.payload);
+    const handleFinish = async () => {
+        formData.images = uploadedImages;
+        const productData =formData;
+        await dispatch(createProducts(productData));
+        formik.resetForm();
+        setColour([]);
+        setTag([]);
+        setTimeout(() => {
+            navigate("/admin/product-list");
+        }, 3000);
+    };
 
-            const imgs = response.payload;
-            let newImgs = []
+    const newProduct = useSelector((state) => state.product);
+    const { isSuccess, isError, isLoading, createdProduct } = newProduct;
 
-            for(let i=0;i<imgs.length;i++){
-               
-                newImgs.push({
-                    public_id:imgs[i].public_id,
-                    url:imgs[i].url
-                })
-            }
-            
-            setImages(newImgs)
-            setStep(3);
+    useEffect(() => {
+        if (isSuccess && createdProduct) {
+            toast.success("Created Product Successfully");
         }
-       
-        const handleFinish = async()=>{
-            formData.images = images
-            await dispatch(createProducts(formData));
-            formik.resetForm();
-            setColour([]);
-            setTag([]);
-            setTimeout(()=>{
-                navigate("/admin/product-list")
-            },3000)
+        if (isError) {
+            toast.error("Error Creating Product, Please Try Again after Sometime");
         }
+    }, [isSuccess, isError, isLoading, createdProduct]);
 
-        const newProduct = useSelector((state)=>state.product);
-        const {isSuccess,isError,isLoading,createdProduct }= newProduct;
 
-        useEffect(()=>{
+const deleteImg = (img)=>{
+    const newImages = images.filter((image)=>{
+        return image.name !=img.name;
+    })
 
-            if(isSuccess && createdProduct){
-                toast.success("Created Product Successfully")
-            }
-            if(isError){
-                toast.error("Error Creating Product, Please Try Again after Sometime")
-            }
-
-        },[isSuccess,isError,isLoading,createdProduct])
-
-       
+    setImages(newImages)
+    console.log(newImages)
+}       
 
   return (
     <div className='lg:p-5 md:p-3'>
@@ -215,7 +239,7 @@ const AddProduct = () => {
                 containerClassName='bg-white flex'
                 data={colors}
                 placeholder='Select Colors'
-                onChange={(e)=>{setColour(e)}}
+                onChange={(e)=>{handleColor(e)}}
                 />
                 {formik.touched.color && formik.errors.color ? (
                     <div><p className='text-sm text-red-400'>{formik.errors.color}</p></div>
@@ -310,62 +334,108 @@ const AddProduct = () => {
             </div>
         </form>
         )}
-
-        {step===2 && (
-            <div className='flex justify-center flex-col gap-6 items-center'>
-                <div className='bg-white flex items-center justify-center h-64  w-full'>
-
-
-                        <Dropzone onDrop={acceptedFiles => setImages(prevImages => [...prevImages, ...acceptedFiles])}>
-                        {({getRootProps, getInputProps}) => (
-                            <section className='w-full h-full'>
-                            <div {...getRootProps()}
-                            className='flex w-full h-full flex-col items-center justify-center'
+            {step === 2 && (
+                    <div className='flex flex-col  gap-5 justify-center items-center'>
+                        <div className='flex flex-col gap-5 w-full justify-start items-center'>
+                            <label className='text-center text-2xl font-semibold'>
+                                Upload Product Images
+                            </label>
+                            <div
+                                onDrop={handleDrop}
+                                onDragOver={(e) => e.preventDefault()}
+                                className="min-h-64 w-full cursor-pointer bg-white  rounded-md flex flex-col items-center justify-center gap-5  py-2 text-center"
                             >
-                                <input {...getInputProps()} />
-                                    <IoFolderOpenOutline className='text-6xl text-gray-500' />
-                                <p className='text-gray-500'>Drag and drop some files here, or click to select files</p>
+                                <input
+                                    type="file"
+                                    multiple
+                                    onChange={handleFileChange}
+                                />
+                                <p className='text-lg'>Drag and drop images here or click to select</p>
                             </div>
-                            </section>
+                            <div className='flex flext-col w-full'>
+                                {images?.length > 0 && (
+                              
+                                <div className='flex flex-col gap-3'>
+                                <div className='flex gap-5 flex-wrap'>
+                                {images.map((img,i)=>{
+                                    return <p key={i}>{img.name} <span className='cursor-pointer' onClick={()=>{deleteImg(img)}}>X</span></p>
+                                })}
+                                </div>
+                                    <button
+                                        onClick={handleUpload}
+                                        className='mt-2 rounded-md bg-blue-500 w-fit py-2 px-4 text-white'
+                                        disabled={uploading}
+                                    >
+                                        {uploading ? 'Uploading...' : 'Upload Images'}
+                                    </button>
+                                    </div>
+                                )}
+                            </div>
+                            {uploadError && <p className="text-red-500">{uploadError}</p>}
+                            {uploadedImages.length > 0 && (
+                                <div className='flex flex-wrap w-full gap-2'>
+                                    {uploadedImages.map((img) => (
+                                        <div className='relative w-28' key={img.public_id}>
+                                            <button
+                                                onClick={() => handleDeleteImg(img.public_id)}
+                                                className='absolute right-1 top-0 z-10 rounded-full bg-red-600 px-2 py-1 text-white hover:bg-red-800'
+                                            >
+                                                x
+                                            </button>
+                                            <img src={img.url} alt="" className='h-24 w-full object-cover' />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        <div className='flex gap-5'>
+
+                        <button
+                            className='cursor-pointer rounded-md px-4 py-2 bg-red-500 text-white'
+                            type="button"
+                            onClick={() => setStep(1)}
+                        >
+                            Back
+                        </button>
+                        <button
+                            className='cursor-pointer rounded-md px-4 py-2 bg-green-500 text-white'
+                            type="button"
+                            onClick={() => setStep(3)}
+                        >
+                            Next
+                        </button>
+                        </div>
+                    </div>
+                )}
+   
+
+   {step === 3 && (
+                    <div className='flex flex-col gap-2'>
+                        <h4 className='text-center text-xl font-bold'>Review & Finish</h4>
+                        <p>Product Name: {formData.title}</p>
+                        <p>Category: {formData.category}</p>
+                        <p>Brand: {formData.brand}</p>
+                        <p>Price: {formData.price}</p>
+                        <p>Quantity: {formData.quantity}</p>
+                        <p>Description: {formData.description}</p>
+                        <p>Colors: {colour.map(c => c.color).join(', ')}</p>
+                        <p>Tags: {tag.join(', ')}</p>
+                        {uploadedImages.length > 0 && (
+                            <div className='flex flex-wrap gap-2'>
+                                {uploadedImages.map((img) => (
+                                    <img key={img.public_id} src={img.url} alt="" className='h-24 w-24 object-cover' />
+                                ))}
+                            </div>
                         )}
-                        </Dropzone>
-                </div>
-                <div className='flex flex-col justify-center'>
-                    <div className='bg-gray-100 grid grid-cols-3 md:grid-cols-5 max-h-96 gap-5'>
-                        {images?.length>0 ? images.map((img,i)=>(
-                            <div className='relative' key={i}>
-                                <button 
-                                onClick={()=>{handleDeleteImg(img.name)}}
-                                className="text-gray-900 absolute p-0 right-0 top-0 hover:text-gray-500 border-0 hover:border-none focus:outline-none">
-                                <svg className="w-5 md:w-4 md:h-5 h-3" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M11.414 10l3.293-3.293a1 1 0 1 0-1.414-1.414L10 8.586l-3.293-3.293a1 1 0 0 0-1.414 1.414L8.586 10l-3.293 3.293a1 1 0 1 0 1.414 1.414L10 11.414l3.293 3.293a1 1 0 0 0 1.414-1.414L11.414 10z" clipRule="evenodd"></path>
-                                </svg>
-                                {/* <span className="sr-only">Close</span> */}
-                            </button>
-                                <p>{img.name}</p>
-                            </div>
-                        )):null}
+                        <button
+                            className='bg-primary/70 cursor-pointer rounded-md p-3 text-black'
+                            type="button"
+                            onClick={handleFinish}
+                        >
+                            Finish
+                        </button>
                     </div>
-
-                    <div className='mt-4'>
-                        <button onClick={handleUpload} type='submit' className='bg-blue-600 py-2 px-3 text-gray-200 font-semibold hover:border-green-800 hover:bg-blue-800 hover:text-white'>Upload</button>
-                    </div>
-                </div>
-            </div>
-        )}
-
-        {step===3 && (
-          <div className='flex mt-8 items-start p-4 flex-col'>
-              <div className='flex justify-center gap-4 items-start'>
-                <input className='mt-1  h-5 w-9' type="checkbox" value={check} onClick={()=>{setCheck(!check)}} />
-                <label>I declare that i agree with the Terms and Conditions of the owner organisation and I comply with them. I also declare that all the provoded information is corrected and any problems associated will be my responsibility alone.</label>
-            </div>
-
-                <div className='p-5'>
-                  <button onClick={check ? handleFinish : ()=>{console.log("dfghjk");}}  className='bg-blue-600 py-2 px-3 text-gray-200 font-semibold hover:border-green-800 hover:bg-blue-800 hover:text-white'>Finish</button>
-              </div>
-            </div>
-        )}
+                )}
       </div>
     </div>
   )
