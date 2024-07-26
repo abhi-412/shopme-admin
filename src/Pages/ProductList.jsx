@@ -94,14 +94,12 @@ const {isSuccess,isError,isLoading,deletedProduct }= deletedProductState;
 useEffect(()=>{
   if(isSuccess && deletedProduct?._id){
     toast.success("Deleted Product Successfully")
-  dispatch(resetState());
-
   }
   if(isError){
       toast.error("Error Deleting Product, Please Try Again after some time")
-  dispatch(resetState());
-
   }
+  dispatch(resetState());
+  dispatch(getProducts())
 })
 
 

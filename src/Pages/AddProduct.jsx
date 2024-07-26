@@ -427,13 +427,15 @@ const deleteImg = (img)=>{
                                 ))}
                             </div>
                         )}
-                        <button
-                            className='bg-primary/70 cursor-pointer rounded-md p-3 text-black'
+                       <div className='w-full flex justify-center items-center py-5'>
+                       <button
+                            className='bg-blue-500  w-fit cursor-pointer rounded-md px-5 py-2 text-white hover:bg-blue-700'
                             type="button"
                             onClick={handleFinish}
                         >
                             Finish
                         </button>
+                       </div>
                     </div>
                 )}
       </div>
