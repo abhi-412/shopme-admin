@@ -57,7 +57,7 @@ const ProductList = () => {
 const dispatch = useDispatch();
   useEffect(()=>{
     dispatch(getProducts());
-  },[dispatch]);
+  },[]);
 const products = useSelector((state)=>state.product.products);
 const Tabledata = [];
 
@@ -100,7 +100,7 @@ useEffect(()=>{
   }
   dispatch(resetState());
   dispatch(getProducts())
-})
+},[])
 
 
   return (
