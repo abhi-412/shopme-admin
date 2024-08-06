@@ -7,7 +7,7 @@ const CustomModal = (props) => {
   return (
     <Modal
         title="Confirmation"
-        style={{"color":"black"}}
+        // style={{"color":"black"}}
         open={open}
         onOk={perfomTask}
         onCancel={hideModal}

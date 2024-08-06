@@ -104,7 +104,10 @@ const perfomTask = ()=>{
 
   return (
     <div>
-      <Table columns={columns} dataSource={Tabledata} />
+      <h3 className="mb-4 text-center text-3xl mx-2">Blogs</h3>
+      <div className="table-container">
+        <Table columns={columns} dataSource={Tabledata} />
+      </div>
       <CustomModal title="Are you sure you want to delete this blog?" open={open} perfomTask={perfomTask} showModal={showModal} hideModal={hideModal} />
 
     </div>

@@ -110,7 +110,9 @@ const [couponId,setCouponId] = useState("")
         </div>
       </div>
       <div>
-      <Table columns={columns} dataSource={Tabledata} />
+      <div className="table-container">
+        <Table columns={columns} dataSource={Tabledata} />
+      </div>
       <CustomModal title="Are you sure you want to delete this coupon?" open={open} perfomTask={perfomTask} showModal={showModal} hideModal={hideModal} />
 
       </div>

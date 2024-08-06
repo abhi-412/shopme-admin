@@ -97,9 +97,11 @@ const [open, setOpen] = useState(false);
 
   return (
     <div>
-      <h3 className="mp-4">Blog Categories</h3>
+      <h3 className="text-center text-3xl mb-3 mx-2">Blog Categories</h3>
       <div>
-      <Table columns={columns} dataSource={Tabledata} />
+      <div className="table-container">
+        <Table columns={columns} dataSource={Tabledata} />
+      </div>
       <CustomModal title="Are you sure you want to delete this Blog Category?" open={open} perfomTask={perfomTask} showModal={showModal} hideModal={hideModal} />
 
       </div>

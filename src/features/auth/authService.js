@@ -25,10 +25,16 @@ export const getOrdersByUserId = async (id)=>{
     return response.data;
 }
 
+export const updateOrderStatus = async(data)=>{
+    const response = await axios.put(`${base_url}user/order/update/${data.id}`,{status:data.status},config);
+    return response.data;
+}
+
 const authService = {
     login,
     getOrders,
-    getOrdersByUserId
+    getOrdersByUserId,
+    updateOrderStatus
 }
 
 export default authService

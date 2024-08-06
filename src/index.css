@@ -67,3 +67,27 @@ main{
     align-items: center;
     gap: 5px;
 } */ 
+
+.table-container {
+    overflow-x: auto;
+  }
+  
+  .table-container table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  
+  .table-container th, .table-container td {
+    background-color: white; /* your desired background color */
+    border-bottom: 1px solid gray;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  .table-container th {
+    position: sticky;
+    top: 0;
+    background-color: white; /* your desired background color */
+    z-index: 1;
+  }
+

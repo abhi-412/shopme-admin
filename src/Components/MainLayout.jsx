@@ -69,7 +69,7 @@ const MainLayout = () => {
         setIsOpen(false);
       };
 
-      const [hideSider, setHideSider] = useState(false);
+      const [hideSider, setHideSider] = useState(window.innerWidth > 768 ? false : true);
 
 
   return (
@@ -311,7 +311,20 @@ const MainLayout = () => {
             borderRadius: borderRadiusLG,
           }}
         >
-          <ToastContainer />
+          <ToastContainer 
+          
+          position="bottom-center"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+          // transition: Slide,
+          />
             <Outlet />
          
         </Content>

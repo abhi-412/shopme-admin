@@ -93,7 +93,8 @@ const [open, setOpen] = useState(false);
 
   return (
     <div>
-      <h3 className="mp-4"> Product Categories </h3>
+            <h3 className="mb-4 text-center text-3xl mx-2">Product Categories</h3>
+
       <div>
       <Table columns={columns} dataSource={Tabledata} />
       <CustomModal title="Are you sure you want to delete this Product Category?" open={open} perfomTask={perfomTask} showModal={showModal} hideModal={hideModal} />

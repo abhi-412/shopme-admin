@@ -18,7 +18,7 @@ const columns = [
       title: 'Product',
       dataIndex: 'name',
       defaultSortOrder:"descend",
-      sorter:(a,b)=>a.name.length - b.name.length
+      sorter:(a,b)=>a.name?.slice(0,1)?.charCodeAt() - b.name?.slice(0,1)?.charCodeAt()
     },
     {
       title: 'Price($)',
@@ -30,7 +30,7 @@ const columns = [
       title: 'Brand',
       dataIndex: 'brand',
       defaultSortOrder:"descend",
-      sorter:(a,b)=>a.brand.length - b.brand.length
+      sorter:(a,b)=>a.brand?.slice(0,1)?.charCodeAt() - b.brand?.slice(0,1)?.charCodeAt()
     },
     {
       title: 'Color',
@@ -40,7 +40,7 @@ const columns = [
       title: 'Category',
       dataIndex: 'category',
       defaultSortOrder:"descend",
-      sorter:(a,b)=>a.category.length - b.category.length
+      sorter:(a,b)=>a.category?.slice(0,1)?.charCodeAt() - b.category?.slice(0,1)?.charCodeAt()
     },
     {
       title: 'Action',
@@ -58,7 +58,7 @@ const dispatch = useDispatch();
   useEffect(()=>{
     dispatch(getProducts());
   },[]);
-const products = useSelector((state)=>state.product.products);
+const products = useSelector((state)=>state.product?.products?.products);
 const Tabledata = [];
 
 
@@ -67,17 +67,17 @@ const handleDelete = (id)=>{
 }
 
   
-for(let i=0;i<products.length;i++){
+for(let i=0;i<products?.length;i++){
   Tabledata.push({
     key:i+1,
-    name:products[i].title,
+    name:products[i].title?.length > 20 ? products[i].title.slice(0,20) + "..." : products[i].title,
     price: products[i].price,
     category:products[i].category,
     brand:products[i].brand,
-    color:products[i].color.length > 0 ? (products[i].color[0].color):  "all colors",
+    color:products[i].color.length > 0 ? (products[i].color[0].color):  " All",
     action: (
       <div className='text-lg flex gap-4'>
-      <Link to={'/'}><FaRegEdit /></Link>
+      <Link to={`/admin/products/${products[i]._id}`}><FaRegEdit /></Link>
       <button onClick={()=>{handleDelete(products[i]._id)}}><MdDelete /></button>
 
       
@@ -112,7 +112,9 @@ useEffect(()=>{
         </div>
       </div>
       <div>
-      <Table columns={columns} dataSource={Tabledata} />
+      <div className="table-container">
+        <Table columns={columns} dataSource={Tabledata} />
+      </div>
 
       </div>
     </div>

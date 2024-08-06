@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import CustomInput from '../Components/CustomInput'
 import { useFormik } from 'formik';
@@ -21,7 +21,7 @@ const AddCoupon = () => {
 
 
   const newCoupon = useSelector((state)=>state.coupon)
-  const {isSuccess,isError,isLoading,createdCoupon,updatedCoupon,coupon } = newCoupon;
+  const {isSuccess,isError,isLoading,createdCoupon,updatedCoupon } = newCoupon;
 
 
 
@@ -140,7 +140,7 @@ const AddCoupon = () => {
                     name="discount" 
                     icon={<CiDiscount1 className='text-lg' />}
                     onCh={formik.handleChange("discount")}
-                    value={formik.values.discount}
+                    val={formik.values.discount}
                     onBl={formik.handleBlur("discount")}
                     />
                     {formik.touched.discount && formik.errors.discount ? (

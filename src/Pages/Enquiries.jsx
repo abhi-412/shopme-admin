@@ -73,7 +73,6 @@ const Enquiries = () => {
   const Tabledata = [];
 
   const setEnq = (e,i)=>{
-    console.log(e,i);
     const data = {values:e,id:i}
     dispatch(updateEnquiry(data));
   }
@@ -129,7 +128,6 @@ const Enquiries = () => {
   const [open, setOpen] = useState(false);
   const showModal = (id) => {
     setOpen(true);
-    console.log(id);
     setEnqId(id)
 
   };
@@ -149,9 +147,11 @@ const Enquiries = () => {
 
   return (
     <div>
-      <h3 className="mp-4">Enquiries</h3>
+      <h3 className="mb-4 text-center text-3xl mx-2">Enquiries</h3>
       <div>
-      <Table columns={columns} dataSource={Tabledata} />
+      <div className="table-container">
+        <Table columns={columns} dataSource={Tabledata} />
+      </div>
       <CustomModal title="Are you sure you want to delete this enquiry?" open={open} perfomTask={perfomTask} showModal={showModal} hideModal={hideModal} />
 
       </div>

@@ -34,11 +34,21 @@ export const deleteProduct = createAsyncThunk(
     }
 )
 
+export const getProductById = createAsyncThunk('product/get-product',async(id,thunkAPI)=>{
+    try{
+        return await productService.getOneProduct(id);
+    }catch(error){
+        return thunkAPI.rejectWithValue(error);
+    }
+
+})
+
 export const resetState = createAction("Reset_All");
 
 const initialState = {
     products: [],
     deletedProduct:{},
+    product:{},
     isError:false,
     isLoading:false,
     isSuccess:false,
@@ -94,7 +104,22 @@ export const productSlice = createSlice({
             state.isError = true;
             state.isSuccess = false;
             state.message = action.error;
-        }).addCase(resetState,()=>initialState)
+        }).addCase(resetState,()=>initialState).addCase(getProductById.pending,(state)=>{
+            state.isLoading = true,
+            state.isError = false,
+            state.isSuccess = false
+
+        }).addCase(getProductById.fulfilled,(state,action)=>{
+            state.isLoading = false;
+            state.isError = false;
+            state.isSuccess = true;
+            state.product = action.payload;
+        }).addCase(getProductById.rejected,(state,action)=>{
+            state.isLoading = false;
+            state.isError = true;
+            state.isSuccess = false;
+            state.message = action.payload || "Error getting Product";
+        })
     },
 })
 

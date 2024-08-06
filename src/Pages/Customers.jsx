@@ -15,7 +15,7 @@ const columns = [
       title: 'Customer Name',
       dataIndex: 'name',
       defaultSortOrder:"descend",
-      sorter:(a,b)=>a.name.length - b.name.length
+      sorter:(a,b)=>a.name?.toLowerCase()?.slice(0,1)?.charCodeAt() - b.name?.toLowerCase()?.slice(0,1)?.charCodeAt()
       
     },
     {
@@ -45,7 +45,7 @@ const Customers = () => {
   for(let i=0;i<customerstate.length; i++){
     if(customerstate[i].role !== "admin"){
       Tabledata.push({
-        key:i,
+        key:i+1,
         name: customerstate[i].firstName.charAt(0).toUpperCase() + customerstate[i].firstName.slice(1) + " " + customerstate[i].lastName,
         email: customerstate[i].email,
         phone: customerstate[i].mobile,
@@ -56,9 +56,12 @@ const Customers = () => {
 
   return (
     <div>
-      <h3 className="mp-4">Customers</h3>
+            <h3 className="mb-4 text-center text-3xl mx-2">Customers</h3>
+
       <div>
-      <Table columns={columns} dataSource={Tabledata} />
+      <div className="table-container">
+        <Table columns={columns} dataSource={Tabledata} />
+      </div>
 
       </div>
     </div>

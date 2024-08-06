@@ -3,8 +3,6 @@ import CustomInput from '../Components/CustomInput'
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { Stepper, Step } from 'react-form-stepper';
-import { InboxOutlined } from '@ant-design/icons';
-import Dropzone from 'react-dropzone'
 import { useFormik } from 'formik';
 import { LiaRupeeSignSolid } from "react-icons/lia";
 import * as Yup from 'yup';
@@ -15,7 +13,6 @@ import { getprodCategories } from '../features/ProductCategory/prodCatSlice';
 import { getColors } from '../features/color/colorSlice';
 import { Multiselect } from 'react-widgets';
 import "react-widgets/styles.css";
-import { IoFolderOpenOutline } from "react-icons/io5";
 import { createProducts } from '../features/product/productSlice';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
